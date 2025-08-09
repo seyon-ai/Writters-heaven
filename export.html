@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Haven - Export</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: white;
+        }
+        
+        #bgVideo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.5);
+        }
+        
+        .content {
+            text-align: center;
+            animation: fadeIn 1.5s ease-in-out;
+            max-width: 800px;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #ff8a00, #e52e71, #00b4db);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 8s ease infinite;
+            background-size: 300% 300%;
+        }
+        
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .export-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .export-option:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .export-option i {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .custom-export {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .custom-export input {
+            padding: 0.8rem 1rem;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .custom-export input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .custom-export button {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-export button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-3px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <video id="bgVideo" autoplay muted loop>
+        <source src="mk.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    
+    <button class="back-btn" onclick="window.location.href='write.html'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    
+    <div class="content">
+        <h1>Export Your Document</h1>
+        <p>Choose a format to export your document or save it for later editing.</p>
+        
+        <div class="export-options">
+            <div class="export-option" onclick="exportAs('pdf')">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF</span>
+            </div>
+            <div class="export-option" onclick="exportAs('html')">
+                <i class="fas fa-code"></i>
+                <span>HTML</span>
+            </div>
+            <div class="export-option" onclick="exportAs('txt')">
+                <i class="fas fa-file-alt"></i>
+                <span>Text File</span>
+            </div>
+            <div class="export-option" onclick="exportAs('docx')">
+                <i class="fas fa-file-word"></i>
+                <span>Word</span>
+            </div>
+            <div class="export-option" onclick="saveLocally()">
+                <i class="fas fa-save"></i>
+                <span>Save Locally</span>
+            </div>
+            <div class="export-option" onclick="window.location.href='special.html'">
+                <i class="fas fa-infinity"></i>
+                <span>Infinity Mode</span>
+            </div>
+        </div>
+        
+        <div class="custom-export">
+            <input type="text" id="customFilename" placeholder="Enter custom filename (without extension)">
+            <button onclick="exportWithCustomName()">Export with Custom Name</button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Ensure video plays on mobile devices
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('bgVideo');
+            video.play().catch(e => {
+                console.log("Autoplay prevented:", e);
+            });
+        });
+        
+        // Get the saved content from localStorage
+        const content = localStorage.getItem('editorContent') || '<p>No content to export</p>';
+        
+        // Export functions
+        function exportAs(format) {
+            const defaultName = `document_${new Date().toISOString().slice(0, 10)}`;
+            
+            switch(format) {
+                case 'pdf':
+                    exportToPDF(defaultName);
+                    break;
+                case 'html':
+                    exportToHTML(defaultName);
+                    break;
+                case 'txt':
+                    exportToTXT(defaultName);
+                    break;
+                case 'docx':
+                    exportToDOCX(defaultName);
+                    break;
+                default:
+                    alert('Export format not supported');
+            }
+        }
+        
+        function exportWithCustomName() {
+            const filename = document.getElementById('customFilename').value.trim() || 
+                           `document_${new Date().toISOString().slice(0, 10)}`;
+            const format = prompt('Enter format (pdf, html, txt, docx):', 'pdf');
+            
+            if (format) {
+                exportAs(format.toLowerCase(), filename);
+            }
+        }
+        
+        function exportToPDF(filename) {
+            // Create a temporary div with the content for PDF generation
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.width = '800px';
+            tempDiv.style.padding = '20px';
+            tempDiv.style.backgroundColor = 'white';
+            tempDiv.style.color = 'black';
+            tempDiv.innerHTML = content;
+            
+            document.body.appendChild(tempDiv);
+            
+            // Use html2canvas and jsPDF to generate PDF
+            html2canvas(tempDiv).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                pdf.save(`${filename}.pdf`);
+                document.body.removeChild(tempDiv);
+            });
+        }
+        
+        function exportToHTML(filename) {
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function exportToTXT(filename) {
+            // Create a temporary div to extract text
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            const text = tempDiv.textContent || tempDiv.innerText || '';
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function exportToDOCX(filename) {
+            // This is a simplified version - in a real app you might use a library like docx.js
+            const htmlHeader = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                xmlns:w='urn:schemas-microsoft-com:office:word' 
+                xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'></head><body>
+            `;
+            const htmlFooter = `</body></html>`;
+            
+            const blob = new Blob([htmlHeader + content + htmlFooter], { 
+                type: 'application/msword' 
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function saveLocally() {
+            localStorage.setItem('editorContent', content);
+            alert('Document saved locally! You can return to it later.');
+        }
+    </script>
+</body>
+</html>

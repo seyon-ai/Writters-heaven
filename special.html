@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Haven - Infinity Mode</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --editor-bg: #2d2d2d;
+            --toolbar-bg: #252525;
+            --button-hover: #3a3a3a;
+            --border-color: #444;
+            --primary-color: #6a8cc7;
+            --secondary-color: #8e9ba4;
+            --infinity-color: #9c27b0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 0.5rem 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            align-items: center;
+        }
+        
+        button {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .infinity-btn {
+            color: var(--infinity-color);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #editor {
+            flex: 1;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: none;
+            resize: none;
+            outline: none;
+            overflow-y: auto;
+            min-height: 100%;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+        }
+        
+        #editor:focus {
+            box-shadow: none;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .filename-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .filename-input::placeholder {
+            color: var(--secondary-color);
+        }
+        
+        /* Custom scrollbar */
+        #editor::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #editor::-webkit-scrollbar-track {
+            background: var(--toolbar-bg);
+        }
+        
+        #editor::-webkit-scrollbar-thumb {
+            background-color: var(--infinity-color);
+            border-radius: 4px;
+        }
+        
+        .line-numbers {
+            padding: 1.5rem 0.5rem;
+            background-color: var(--toolbar-bg);
+            color: var(--secondary-color);
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            overflow-y: hidden;
+            user-select: none;
+        }
+        
+        .editor-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button id="exportTxtBtn">
+                <i class="fas fa-file-alt"></i> Export as TXT
+            </button>
+            <button id="exportHtmlBtn">
+                <i class="fas fa-code"></i> Export as HTML
+            </button>
+            <button id="exportPyBtn">
+                <i class="fab fa-python"></i> Export as Python
+            </button>
+        </div>
+        
+        <div class="toolbar-group" style="margin-left: auto;">
+            <input type="text" id="filenameInput" class="filename-input" placeholder="filename" value="infinity_code">
+            <button id="backBtn" onclick="window.location.href='write.html'">
+                <i class="fas fa-arrow-left"></i> Back to Editor
+            </button>
+        </div>
+    </div>
+    
+    <div class="editor-wrapper">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <div class="editor-container">
+            <textarea id="editor" spellcheck="false" placeholder="Write your infinity code here..."></textarea>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize variables
+        const editor = document.getElementById('editor');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const filenameInput = document.getElementById('filenameInput');
+        
+        // Load saved content if available
+        if (localStorage.getItem('editorContent')) {
+            editor.value = localStorage.getItem('editorContent');
+            updateLineNumbers();
+        }
+        
+        // Update line numbers as user types
+        editor.addEventListener('input', updateLineNumbers);
+        editor.addEventListener('scroll', syncScroll);
+        
+        function updateLineNumbers() {
+            const lines = editor.value.split('\n');
+            let lineNumbersText = '';
+            
+            for (let i = 0; i < lines.length; i++) {
+                lineNumbersText += (i + 1) + '\n';
+            }
+            
+            lineNumbers.textContent = lineNumbersText;
+        }
+        
+        function syncScroll() {
+            lineNumbers.scrollTop = editor.scrollTop;
+        }
+        
+        // Export functions
+        document.getElementById('exportTxtBtn').addEventListener('click', () => {
+            exportFile(filenameInput.value || 'infinity_code', 'txt');
+        });
+        
+        document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+            exportFile(filenameInput.value || 'infinity_code', 'html');
+        });
+        
+        document.getElementById('exportPyBtn').addEventListener('click', () => {
+            exportFile(filenameInput.value || 'infinity_code', 'py');
+        });
+        
+        function exportFile(filename, extension) {
+            const content = editor.value;
+            let mimeType, processedContent;
+            
+            switch(extension) {
+                case 'txt':
+                    mimeType = 'text/plain';
+                    processedContent = content;
+                    break;
+                case 'html':
+                    mimeType = 'text/html';
+                    processedContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${filename}</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            margin: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+</body>
+</html>`;
+                    break;
+                case 'py':
+                    mimeType = 'text/x-python';
+                    processedContent = content;
+                    break;
+                default:
+                    mimeType = 'text/plain';
+                    processedContent = content;
+            }
+            
+            const blob = new Blob([processedContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Save content when leaving the page
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('editorContent', editor.value);
+        });
+        
+        // Initialize line numbers
+        updateLineNumbers();
+    </script>
+</body>
+</html>

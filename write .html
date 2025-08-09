@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Haven - Write</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0/dist/emoji-picker-element.min.css">
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --editor-bg: #fff;
+            --toolbar-bg: #f0f0f0;
+            --button-hover: #e0e0e0;
+            --border-color: #ddd;
+            --primary-color: #4a6fa5;
+            --secondary-color: #6c757d;
+        }
+        
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --editor-bg: #2d2d2d;
+            --toolbar-bg: #252525;
+            --button-hover: #3a3a3a;
+            --border-color: #444;
+            --primary-color: #6a8cc7;
+            --secondary-color: #8e9ba4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 0.5rem 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            align-items: center;
+        }
+        
+        .toolbar-divider {
+            width: 1px;
+            height: 30px;
+            background-color: var(--border-color);
+            margin: 0 0.5rem;
+        }
+        
+        button, .toolbar-select {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        button:hover, .toolbar-select:hover {
+            background-color: var(--button-hover);
+        }
+        
+        button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .toolbar-select {
+            padding: 0.4rem 0.6rem;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #editor {
+            flex: 1;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: none;
+            resize: none;
+            outline: none;
+            overflow-y: auto;
+            min-height: 100%;
+        }
+        
+        #editor:focus {
+            box-shadow: none;
+        }
+        
+        .emoji-btn {
+            position: relative;
+        }
+        
+        emoji-picker {
+            position: absolute;
+            bottom: 40px;
+            right: 0;
+            z-index: 100;
+            --emoji-size: 1.2rem;
+            --background: var(--toolbar-bg);
+            --border-color: var(--border-color);
+            --category-icon-size: 1.2rem;
+        }
+        
+        .theme-toggle {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .infinity-btn {
+            color: var(--primary-color);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .page-break {
+            display: block;
+            height: 50px;
+            width: 100%;
+            border-bottom: 2px dashed var(--border-color);
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .page-break::after {
+            content: "New Page";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--editor-bg);
+            padding: 0 10px;
+            color: var(--secondary-color);
+            font-size: 0.8rem;
+        }
+        
+        /* Custom scrollbar */
+        #editor::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #editor::-webkit-scrollbar-track {
+            background: var(--toolbar-bg);
+        }
+        
+        #editor::-webkit-scrollbar-thumb {
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+        
+        /* Floating action button for mobile */
+        .fab {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.5rem;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                display: none;
+            }
+            
+            .toolbar-mobile {
+                display: flex;
+            }
+            
+            .fab {
+                display: flex;
+            }
+        }
+        
+        /* Animation for editor content */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #editor > * {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button id="exportBtn" title="Export Document">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+            <button id="saveLocalBtn" title="Save Locally">
+                <i class="fas fa-save"></i> Save
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="boldBtn" title="Bold">
+                <i class="fas fa-bold"></i>
+            </button>
+            <button id="italicBtn" title="Italic">
+                <i class="fas fa-italic"></i>
+            </button>
+            <button id="underlineBtn" title="Underline">
+                <i class="fas fa-underline"></i>
+            </button>
+            <button id="strikeBtn" title="Strikethrough">
+                <i class="fas fa-strikethrough"></i>
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <select class="toolbar-select" id="headingSelect" title="Heading Style">
+                <option value="p">Paragraph</option>
+                <option value="h1">Heading 1</option>
+                <option value="h2">Heading 2</option>
+                <option value="h3">Heading 3</option>
+            </select>
+            
+            <select class="toolbar-select" id="fontSelect" title="Font Family">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Palatino Linotype', serif">Palatino</option>
+                <option value="'Comic Sans MS', cursive">Comic Sans</option>
+            </select>
+            
+            <select class="toolbar-select" id="sizeSelect" title="Font Size">
+                <option value="1rem">Normal</option>
+                <option value="0.8rem">Small</option>
+                <option value="1.2rem">Large</option>
+                <option value="1.5rem">Extra Large</option>
+            </select>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="colorBtn" title="Text Color">
+                <i class="fas fa-palette"></i>
+                <input type="color" id="colorPicker" style="width: 0; height: 0; opacity: 0; position: absolute;">
+            </button>
+            
+            <button id="highlightBtn" title="Highlight Color">
+                <i class="fas fa-highlighter"></i>
+                <input type="color" id="highlightPicker" style="width: 0; height: 0; opacity: 0; position: absolute;">
+            </button>
+            
+            <button class="emoji-btn" title="Insert Emoji">
+                <i class="far fa-smile"></i>
+                <emoji-picker></emoji-picker>
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="alignLeftBtn" title="Align Left">
+                <i class="fas fa-align-left"></i>
+            </button>
+            <button id="alignCenterBtn" title="Align Center">
+                <i class="fas fa-align-center"></i>
+            </button>
+            <button id="alignRightBtn" title="Align Right">
+                <i class="fas fa-align-right"></i>
+            </button>
+            <button id="justifyBtn" title="Justify">
+                <i class="fas fa-align-justify"></i>
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="listUlBtn" title="Bullet List">
+                <i class="fas fa-list-ul"></i>
+            </button>
+            <button id="listOlBtn" title="Numbered List">
+                <i class="fas fa-list-ol"></i>
+            </button>
+            <button id="indentBtn" title="Indent">
+                <i class="fas fa-indent"></i>
+            </button>
+            <button id="outdentBtn" title="Outdent">
+                <i class="fas fa-outdent"></i>
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="linkBtn" title="Insert Link">
+                <i class="fas fa-link"></i>
+            </button>
+            <button id="imageBtn" title="Insert Image">
+                <i class="fas fa-image"></i>
+                <input type="file" id="imageInput" class="file-input" accept="image/*">
+            </button>
+            <button id="pageBreakBtn" title="Insert Page Break">
+                <i class="fas fa-file-alt"></i>
+            </button>
+        </div>
+        
+        <div class="toolbar-divider"></div>
+        
+        <div class="toolbar-group">
+            <button id="undoBtn" title="Undo">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button id="redoBtn" title="Redo">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button id="clearBtn" title="Clear Formatting">
+                <i class="fas fa-eraser"></i>
+            </button>
+        </div>
+        
+        <button id="infinityBtn" class="infinity-btn" title="Infinity Mode">
+            ∞
+        </button>
+        
+        <button id="themeToggle" class="theme-toggle" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+    
+    <div class="editor-container">
+        <div id="editor" contenteditable="true" data-placeholder="Start writing here..."></div>
+    </div>
+    
+    <button class="fab" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0/dist/emoji-picker-element.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Initialize variables
+        let isDarkMode = false;
+        const editor = document.getElementById('editor');
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Set up the editor with default content
+        editor.innerHTML = '<p><br></p>';
+        
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            themeToggle.title = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            isDarkMode = true;
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            themeToggle.title = 'Toggle Light Mode';
+        }
+        
+        // Toolbar button functionality
+        document.getElementById('boldBtn').addEventListener('click', () => {
+            document.execCommand('bold', false, null);
+        });
+        
+        document.getElementById('italicBtn').addEventListener('click', () => {
+            document.execCommand('italic', false, null);
+        });
+        
+        document.getElementById('underlineBtn').addEventListener('click', () => {
+            document.execCommand('underline', false, null);
+        });
+        
+        document.getElementById('strikeBtn').addEventListener('click', () => {
+            document.execCommand('strikeThrough', false, null);
+        });
+        
+        document.getElementById('headingSelect').addEventListener('change', (e) => {
+            const tag = e.target.value;
+            document.execCommand('formatBlock', false, tag);
+        });
+        
+        document.getElementById('fontSelect').addEventListener('change', (e) => {
+            document.execCommand('fontName', false, e.target.value);
+        });
+        
+        document.getElementById('sizeSelect').addEventListener('change', (e) => {
+            document.execCommand('fontSize', false, '7'); // This works differently across browsers
+            // Better approach for modern browsers
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.fontSize = e.target.value;
+                range.surroundContents(span);
+            }
+        });
+        
+        document.getElementById('colorBtn').addEventListener('click', () => {
+            document.getElementById('colorPicker').click();
+        });
+        
+        document.getElementById('colorPicker').addEventListener('input', (e) => {
+            document.execCommand('foreColor', false, e.target.value);
+        });
+        
+        document.getElementById('highlightBtn').addEventListener('click', () => {
+            document.getElementById('highlightPicker').click();
+        });
+        
+        document.getElementById('highlightPicker').addEventListener('input', (e) => {
+            document.execCommand('hiliteColor', false, e.target.value);
+        });
+        
+        // Emoji picker
+        const picker = document.querySelector('emoji-picker');
+        picker.addEventListener('emoji-click', event => {
+            const emoji = event.detail.unicode;
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(emoji));
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                editor.focus();
+            }
+        });
+        
+        // Text alignment
+        document.getElementById('alignLeftBtn').addEventListener('click', () => {
+            document.execCommand('justifyLeft', false, null);
+        });
+        
+        document.getElementById('alignCenterBtn').addEventListener('click', () => {
+            document.execCommand('justifyCenter', false, null);
+        });
+        
+        document.getElementById('alignRightBtn').addEventListener('click', () => {
+            document.execCommand('justifyRight', false, null);
+        });
+        
+        document.getElementById('justifyBtn').addEventListener('click', () => {
+            document.execCommand('justifyFull', false, null);
+        });
+        
+        // Lists
+        document.getElementById('listUlBtn').addEventListener('click', () => {
+            document.execCommand('insertUnorderedList', false, null);
+        });
+        
+        document.getElementById('listOlBtn').addEventListener('click', () => {
+            document.execCommand('insertOrderedList', false, null);
+        });
+        
+        document.getElementById('indentBtn').addEventListener('click', () => {
+            document.execCommand('indent', false, null);
+        });
+        
+        document.getElementById('outdentBtn').addEventListener('click', () => {
+            document.execCommand('outdent', false, null);
+        });
+        
+        // Links
+        document.getElementById('linkBtn').addEventListener('click', () => {
+            const url = prompt('Enter the URL:');
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        });
+        
+        // Images
+        document.getElementById('imageBtn').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
+        
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100%';
+                    
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(img);
+                        range.collapse(false);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        editor.focus();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Page breaks
+        document.getElementById('pageBreakBtn').addEventListener('click', () => {
+            const pageBreak = document.createElement('div');
+            pageBreak.className = 'page-break';
+            
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(pageBreak);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                editor.focus();
+            }
+        });
+        
+        // Undo/Redo
+        document.getElementById('undoBtn').addEventListener('click', () => {
+            document.execCommand('undo', false, null);
+        });
+        
+        document.getElementById('redoBtn').addEventListener('click', () => {
+            document.execCommand('redo', false, null);
+        });
+        
+        // Clear formatting
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.execCommand('removeFormat', false, null);
+        });
+        
+        // Infinity mode button
+        document.getElementById('infinityBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            window.location.href = 'special.html';
+        });
+        
+        // Export button
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            window.location.href = 'export.html';
+        });
+        
+        // Save locally button
+        document.getElementById('saveLocalBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            alert('Document saved locally! You can return to it later.');
+        });
+        
+        // Load saved content if available
+        if (localStorage.getItem('editorContent')) {
+            editor.innerHTML = localStorage.getItem('editorContent');
+        }
+        
+        // Placeholder functionality
+        editor.addEventListener('focus', () => {
+            if (editor.innerHTML === '<p><br></p>') {
+                editor.innerHTML = '';
+            }
+        });
+        
+        editor.addEventListener('blur', () => {
+            if (editor.innerHTML === '') {
+                editor.innerHTML = '<p><br></p>';
+            }
+        });
+        
+        // Mobile menu button
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.querySelector('.toolbar').classList.toggle('mobile-visible');
+        });
+    </script>
+</body>
+</html>
