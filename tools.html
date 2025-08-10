@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Haven Pro | Tools Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --dark: #1b263b;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dark-mode {
+            --primary: #4895ef;
+            --secondary: #4361ee;
+            --accent: #3f37c9;
+            --dark: #f8f9fa;
+            --light: #1b263b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: var(--transition);
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .back-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            background-color: var(--secondary);
+            transform: translateX(-3px);
+        }
+
+        .search-bar {
+            width: 100%;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            background-color: var(--light);
+            color: var(--dark);
+            box-shadow: var(--shadow);
+        }
+
+        .search-bar i {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-category {
+            margin-bottom: 3rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tool-card {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .tool-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-card p {
+            font-size: 0.9rem;
+            color: var(--dark);
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            border: none;
+            z-index: 100;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        body.dark-mode .tool-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .search-bar input {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--dark);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tool-card {
+            animation: fadeIn 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        /* Delay animations for grid items */
+        .tool-card:nth-child(1) { animation-delay: 0.1s; }
+        .tool-card:nth-child(2) { animation-delay: 0.2s; }
+        .tool-card:nth-child(3) { animation-delay: 0.3s; }
+        .tool-card:nth-child(4) { animation-delay: 0.4s; }
+        .tool-card:nth-child(5) { animation-delay: 0.5s; }
+        .tool-card:nth-child(6) { animation-delay: 0.6s; }
+        /* Continue as needed for more items */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tools"></i> Advanced Tools Library</h1>
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-arrow-left"></i> Back to Editor
+            </button>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search 1000+ tools...">
+            <i class="fas fa-search"></i>
+        </div>
+
+        <!-- Formatting Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-text-height"></i> Text Formatting</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-command="bold">
+                    <h3><i class="fas fa-bold"></i> Bold</h3>
+                    <p>Make selected text bold (Ctrl+B)</p>
+                </div>
+                <div class="tool-card" data-command="italic">
+                    <h3><i class="fas fa-italic"></i> Italic</h3>
+                    <p>Italicize selected text (Ctrl+I)</p>
+                </div>
+                <div class="tool-card" data-command="underline">
+                    <h3><i class="fas fa-underline"></i> Underline</h3>
+                    <p>Underline selected text (Ctrl+U)</p>
+                </div>
+                <div class="tool-card" data-command="strikeThrough">
+                    <h3><i class="fas fa-strikethrough"></i> Strikethrough</h3>
+                    <p>Draw a line through selected text</p>
+                </div>
+                <div class="tool-card" data-command="superscript">
+                    <h3><i class="fas fa-superscript"></i> Superscript</h3>
+                    <p>Raise selected text above the baseline</p>
+                </div>
+                <div class="tool-card" data-command="subscript">
+                    <h3><i class="fas fa-subscript"></i> Subscript</h3>
+                    <p>Lower selected text below the baseline</p>
+                </div>
+                <div class="tool-card" data-format="h1">
+                    <h3><i class="fas fa-heading"></i> Heading 1</h3>
+                    <p>Format as primary heading</p>
+                </div>
+                <div class="tool-card" data-format="h2">
+                    <h3><i class="fas fa-heading"></i> Heading 2</h3>
+                    <p>Format as secondary heading</p>
+                </div>
+                <div class="tool-card" data-format="h3">
+                    <h3><i class="fas fa-heading"></i> Heading 3</h3>
+                    <p>Format as tertiary heading</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Font Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-font"></i> Font Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-font="Arial">
+                    <h3><i class="fas fa-font"></i> Arial</h3>
+                    <p>Change to Arial font family</p>
+                </div>
+                <div class="tool-card" data-font="Times New Roman">
+                    <h3><i class="fas fa-font"></i> Times New Roman</h3>
+                    <p>Change to Times New Roman</p>
+                </div>
+                <div class="tool-card" data-font="Courier New">
+                    <h3><i class="fas fa-font"></i> Courier New</h3>
+                    <p>Change to monospace font</p>
+                </div>
+                <div class="tool-card" data-font="Georgia">
+                    <h3><i class="fas fa-font"></i> Georgia</h3>
+                    <p>Change to Georgia serif font</p>
+                </div>
+                <div class="tool-card" data-font="Comic Sans MS">
+                    <h3><i class="fas fa-font"></i> Comic Sans</h3>
+                    <p>Change to Comic Sans MS</p>
+                </div>
+                <div class="tool-card" data-font="Verdana">
+                    <h3><i class="fas fa-font"></i> Verdana</h3>
+                    <p>Change to Verdana sans-serif</p>
+                </div>
+                <div class="tool-card" data-size="12px">
+                    <h3><i class="fas fa-text-height"></i> Small Text</h3>
+                    <p>Set font size to 12px</p>
+                </div>
+                <div class="tool-card" data-size="16px">
+                    <h3><i class="fas fa-text-height"></i> Normal Text</h3>
+                    <p>Set font size to 16px</p>
+                </div>
+                <div class="tool-card" data-size="24px">
+                    <h3><i class="fas fa-text-height"></i> Large Text</h3>
+                    <p>Set font size to 24px</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-palette"></i> Color Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-color="#000000">
+                    <h3><i class="fas fa-font"></i> Black Text</h3>
+                    <p>Set text color to black</p>
+                </div>
+                <div class="tool-card" data-color="#ffffff" style="background-color: #333;">
+                    <h3><i class="fas fa-font"></i> White Text</h3>
+                    <p>Set text color to white</p>
+                </div>
+                <div class="tool-card" data-color="#ff0000">
+                    <h3><i class="fas fa-font" style="color: #ff0000;"></i> Red Text</h3>
+                    <p>Set text color to red</p>
+                </div>
+                <div class="tool-card" data-color="#00ff00">
+                    <h3><i class="fas fa-font" style="color: #00ff00;"></i> Green Text</h3>
+                    <p>Set text color to green</p>
+                </div>
+                <div class="tool-card" data-color="#0000ff">
+                    <h3><i class="fas fa-font" style="color: #0000ff;"></i> Blue Text</h3>
+                    <p>Set text color to blue</p>
+                </div>
+                <div class="tool-card" data-highlight="#ffff00">
+                    <h3><i class="fas fa-highlighter" style="color: #ffff00;"></i> Yellow Highlight</h3>
+                    <p>Set highlight color to yellow</p>
+                </div>
+                <div class="tool-card" data-highlight="#ffcccc">
+                    <h3><i class="fas fa-highlighter" style="color: #ffcccc;"></i> Pink Highlight</h3>
+                    <p>Set highlight color to pink</p>
+                </div>
+                <div class="tool-card" data-highlight="#ccffcc">
+                    <h3><i class="fas fa-highlighter" style="color: #ccffcc;"></i> Green Highlight</h3>
+                    <p>Set highlight color to mint</p>
+                </div>
+                <div class="tool-card" data-highlight="#ccccff">
+                    <h3><i class="fas fa-highlighter" style="color: #ccccff;"></i> Blue Highlight</h3>
+                    <p>Set highlight color to lavender</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alignment Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-align-left"></i> Alignment Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-align="left">
+                    <h3><i class="fas fa-align-left"></i> Align Left</h3>
+                    <p>Align text to the left</p>
+                </div>
+                <div class="tool-card" data-align="center">
+                    <h3><i class="fas fa-align-center"></i> Center</h3>
+                    <p>Center-align text</p>
+                </div>
+                <div class="tool-card" data-align="right">
+                    <h3><i class="fas fa-align-right"></i> Align Right</h3>
+                    <p>Align text to the right</p>
+                </div>
+                <div class="tool-card" data-align="justify">
+                    <h3><i class="fas fa-align-justify"></i> Justify</h3>
+                    <p>Justify text alignment</p>
+                </div>
+                <div class="tool-card" data-indent="increase">
+                    <h3><i class="fas fa-indent"></i> Increase Indent</h3>
+                    <p>Indent paragraph further</p>
+                </div>
+                <div class="tool-card" data-indent="decrease">
+                    <h3><i class="fas fa-outdent"></i> Decrease Indent</h3>
+                    <p>Reduce paragraph indent</p>
+                </div>
+                <div class="tool-card" data-direction="rtl">
+                    <h3><i class="fas fa-paragraph"></i> Right-to-Left</h3>
+                    <p>Set text direction RTL</p>
+                </div>
+                <div class="tool-card" data-direction="ltr">
+                    <h3><i class="fas fa-paragraph"></i> Left-to-Right</h3>
+                    <p>Set text direction LTR</p>
+                </div>
+                <div class="tool-card" data-lineheight="2">
+                    <h3><i class="fas fa-arrows-alt-v"></i> Double Spacing</h3>
+                    <p>Set line height to 2</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-list-ul"></i> List Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-list="ul">
+                    <h3><i class="fas fa-list-ul"></i> Bullet List</h3>
+                    <p>Create unordered bullet list</p>
+                </div>
+                <div class="tool-card" data-list="ol">
+                    <h3><i class="fas fa-list-ol"></i> Numbered List</h3>
+                    <p>Create ordered numbered list</p>
+                </div>
+                <div class="tool-card" data-list="check">
+                    <h3><i class="fas fa-tasks"></i> Checklist</h3>
+                    <p>Create interactive checklist</p>
+                </div>
+                <div class="tool-card" data-list="roman">
+                    <h3><i class="fas fa-list-ol"></i> Roman Numerals</h3>
+                    <p>Numbered list with Roman numerals</p>
+                </div>
+                <div class="tool-card" data-list="alpha">
+                    <h3><i class="fas fa-list-ol"></i> Alpha List</h3>
+                    <p>Numbered list with alphabetical letters</p>
+                </div>
+                <div class="tool-card" data-list="square">
+                    <h3><i class="fas fa-square"></i> Square Bullets</h3>
+                    <p>Unordered list with square bullets</p>
+                </div>
+                <div class="tool-card" data-list="circle">
+                    <h3><i class="fas fa-circle"></i> Circle Bullets</h3>
+                    <p>Unordered list with circle bullets</p>
+                </div>
+                <div class="tool-card" data-list="none">
+                    <h3><i class="fas fa-ban"></i> Remove List</h3>
+                    <p>Convert list to normal text</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insert Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-plus-circle"></i> Insert Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-insert="link">
+                    <h3><i class="fas fa-link"></i> Insert Link</h3>
+                    <p>Add hyperlink to selected text</p>
+                </div>
+                <div class="tool-card" data-insert="image">
+                    <h3><i class="fas fa-image"></i> Insert Image</h3>
+                    <p>Add image from your device</p>
+                </div>
+                <div class="tool-card" data-insert="table">
+                    <h3><i class="fas fa-table"></i> Insert Table</h3>
+                    <p>Add customizable data table</p>
+                </div>
+                <div class="tool-card" data-insert="emoji">
+                    <h3><i class="far fa-smile"></i> Insert Emoji</h3>
+                    <p>Add emoji from extensive library</p>
+                </div>
+                <div class="tool-card" data-insert="hr">
+                    <h3><i class="fas fa-minus"></i> Horizontal Line</h3>
+                    <p>Insert dividing horizontal rule</p>
+                </div>
+                <div class="tool-card" data-insert="pagebreak">
+                    <h3><i class="fas fa-file-alt"></i> Page Break</h3>
+                    <p>Insert document page break</p>
+                </div>
+                <div class="tool-card" data-insert="quote">
+                    <h3><i class="fas fa-quote-right"></i> Block Quote</h3>
+                    <p>Insert styled quotation block</p>
+                </div>
+                <div class="tool-card" data-insert="code">
+                    <h3><i class="fas fa-code"></i> Code Block</h3>
+                    <p>Insert syntax-highlighted code</p>
+                </div>
+                <div class="tool-card" data-insert="date">
+                    <h3><i class="far fa-calendar-alt"></i> Insert Date</h3>
+                    <p>Add current date in various formats</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Tools -->
+        <div class="tool-category">
+            <h2 class="category-title"><i class="fas fa-cogs"></i> Advanced Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" data-advanced="wordcount">
+                    <h3><i class="fas fa-calculator"></i> Word Count</h3>
+                    <p>Show detailed document statistics</p>
+                </div>
+                <div class="tool-card" data-advanced="findreplace">
+                    <h3><i class="fas fa-search"></i> Find & Replace</h3>
+                    <p>Advanced text search and replace</p>
+                </div>
+                <div class="tool-card" data-advanced="toc">
+                    <h3><i class="fas fa-list-ol"></i> Table of Contents</h3>
+                    <p>Generate auto-updating TOC</p>
+                </div>
+                <div class="tool-card" data-advanced="comments">
+                    <h3><i class="far fa-comment-dots"></i> Comments</h3>
+                    <p>Add inline comments to document</p>
+                </div>
+                <div class="tool-card" data-advanced="footnotes">
+                    <h3><i class="fas fa-bookmark"></i> Footnotes</h3>
+                    <p>Add and manage footnotes</p>
+                </div>
+                <div class="tool-card" data-advanced="watermark">
+                    <h3><i class="fas fa-stamp"></i> Watermark</h3>
+                    <p>Add document watermark</p>
+                </div>
+                <div class="tool-card" data-advanced="macro">
+                    <h3><i class="fas fa-project-diagram"></i> Macros</h3>
+                    <p>Create and run text macros</p>
+                </div>
+                <div class="tool-card" data-advanced="history">
+                    <h3><i class="fas fa-history"></i> Version History</h3>
+                    <p>View and restore document versions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue with more categories... -->
+        <!-- (In the full implementation, there would be 20+ categories with 50+ tools each) -->
+
+    </div>
+
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            themeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+        
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'write.html';
+        });
+        
+        // Tool selection
+        document.querySelectorAll('.tool-card').forEach(tool => {
+            tool.addEventListener('click', () => {
+                const command = tool.dataset.command;
+                const format = tool.dataset.format;
+                const font = tool.dataset.font;
+                const size = tool.dataset.size;
+                const color = tool.dataset.color;
+                const highlight = tool.dataset.highlight;
+                const align = tool.dataset.align;
+                const indent = tool.dataset.indent;
+                const direction = tool.dataset.direction;
+                const lineheight = tool.dataset.lineheight;
+                const list = tool.dataset.list;
+                const insert = tool.dataset.insert;
+                const advanced = tool.dataset.advanced;
+                
+                // Store the selected tool in localStorage
+                let toolData = {};
+                
+                if (command) toolData.command = command;
+                if (format) toolData.format = format;
+                if (font) toolData.font = font;
+                if (size) toolData.size = size;
+                if (color) toolData.color = color;
+                if (highlight) toolData.highlight = highlight;
+                if (align) toolData.align = align;
+                if (indent) toolData.indent = indent;
+                if (direction) toolData.direction = direction;
+                if (lineheight) toolData.lineheight = lineheight;
+                if (list) toolData.list = list;
+                if (insert) toolData.insert = insert;
+                if (advanced) toolData.advanced = advanced;
+                
+                localStorage.setItem('selectedTool', JSON.stringify(toolData));
+                
+                // Visual feedback
+                tool.style.backgroundColor = 'var(--primary)';
+                tool.style.color = 'white';
+                setTimeout(() => {
+                    tool.style.backgroundColor = '';
+                    tool.style.color = '';
+                    window.location.href = 'write.html';
+                }, 300);
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.tool-card').forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

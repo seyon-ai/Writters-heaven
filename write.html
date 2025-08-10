@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writer's Haven Pro | Advanced Writing Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.14.0/dist/emoji-picker-element.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --dark: #1b263b;
+            --light: #f8f9fa;
+            --editor-bg: #ffffff;
+            --toolbar-bg: #f1f3f5;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dark-mode {
+            --primary: #4895ef;
+            --secondary: #4361ee;
+            --accent: #3f37c9;
+            --dark: #f8f9fa;
+            --light: #1b263b;
+            --editor-bg: #2b2d42;
+            --toolbar-bg: #1b263b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: var(--transition);
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Premium Toolbar */
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            align-items: center;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            align-items: center;
+            position: relative;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 32px;
+            background-color: rgba(0, 0, 0, 0.1);
+            margin: 0 0.5rem;
+        }
+
+        .tool-btn {
+            background-color: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: var(--dark);
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 36px;
+            justify-content: center;
+        }
+
+        .tool-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--toolbar-bg);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        /* Advanced Editor */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #editor {
+            flex: 1;
+            padding: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            background-color: var(--editor-bg);
+            color: var(--dark);
+            border: none;
+            resize: none;
+            outline: none;
+            overflow-y: auto;
+            min-height: 100%;
+            tab-size: 4;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 50;
+            border: none;
+        }
+
+        .fab:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tools Portal Button */
+        .tools-portal-btn {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            z-index: 50;
+            border: none;
+        }
+
+        .tools-portal-btn:hover {
+            background-color: var(--secondary);
+            transform: translateX(5px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .toolbar {
+                padding: 0.5rem;
+                gap: 0.25rem;
+            }
+            
+            .tool-btn {
+                padding: 0.35rem;
+                min-width: 32px;
+            }
+            
+            #editor {
+                padding: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        #editor::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #editor::-webkit-scrollbar-track {
+            background: var(--toolbar-bg);
+        }
+
+        #editor::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <!-- File Operations -->
+        <div class="toolbar-group">
+            <button class="tool-btn" id="newDocBtn" title="New Document">
+                <i class="fas fa-file"></i>
+            </button>
+            <button class="tool-btn" id="saveBtn" title="Save">
+                <i class="fas fa-save"></i>
+            </button>
+            <button class="tool-btn" id="exportBtn" title="Export">
+                <i class="fas fa-file-export"></i>
+            </button>
+            <div class="dropdown">
+                <button class="tool-btn" title="Templates">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+                <div class="dropdown-content" id="templatesMenu">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Basic Formatting -->
+        <div class="toolbar-group">
+            <button class="tool-btn" id="boldBtn" title="Bold">
+                <i class="fas fa-bold"></i>
+            </button>
+            <button class="tool-btn" id="italicBtn" title="Italic">
+                <i class="fas fa-italic"></i>
+            </button>
+            <button class="tool-btn" id="underlineBtn" title="Underline">
+                <i class="fas fa-underline"></i>
+            </button>
+            <div class="dropdown">
+                <button class="tool-btn" title="Text Color">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <div class="dropdown-content">
+                    <input type="color" id="textColor" value="#000000" class="tool-btn" style="width: 100%;">
+                    <button class="tool-btn" id="highlightBtn">Highlight</button>
+                    <input type="color" id="highlightColor" value="#ffff00" class="tool-btn" style="width: 100%;">
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Advanced Formatting -->
+        <div class="toolbar-group">
+            <div class="dropdown">
+                <button class="tool-btn" title="Headings">
+                    <i class="fas fa-heading"></i>
+                </button>
+                <div class="dropdown-content">
+                    <button class="tool-btn" data-format="h1">Heading 1</button>
+                    <button class="tool-btn" data-format="h2">Heading 2</button>
+                    <button class="tool-btn" data-format="h3">Heading 3</button>
+                    <button class="tool-btn" data-format="p">Paragraph</button>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="tool-btn" title="Font Family">
+                    <i class="fas fa-font"></i>
+                </button>
+                <div class="dropdown-content">
+                    <button class="tool-btn" data-font="Arial">Arial</button>
+                    <button class="tool-btn" data-font="Times New Roman">Times</button>
+                    <button class="tool-btn" data-font="Courier New">Courier</button>
+                    <button class="tool-btn" data-font="Georgia">Georgia</button>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="tool-btn" title="Font Size">
+                    <i class="fas fa-text-height"></i>
+                </button>
+                <div class="dropdown-content">
+                    <button class="tool-btn" data-size="12px">Small</button>
+                    <button class="tool-btn" data-size="16px">Normal</button>
+                    <button class="tool-btn" data-size="20px">Large</button>
+                    <button class="tool-btn" data-size="24px">X-Large</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Insert Elements -->
+        <div class="toolbar-group">
+            <button class="tool-btn" id="linkBtn" title="Insert Link">
+                <i class="fas fa-link"></i>
+            </button>
+            <button class="tool-btn" id="imageBtn" title="Insert Image">
+                <i class="fas fa-image"></i>
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </button>
+            <button class="tool-btn" id="emojiBtn" title="Insert Emoji">
+                <i class="far fa-smile"></i>
+            </button>
+            <button class="tool-btn" id="tableBtn" title="Insert Table">
+                <i class="fas fa-table"></i>
+            </button>
+        </div>
+
+        <!-- Right-aligned buttons -->
+        <div style="margin-left: auto;" class="toolbar-group">
+            <button class="tool-btn" id="wordCountBtn" title="Word Count">
+                <span id="wordCount">0</span> words
+            </button>
+            <button class="tool-btn" id="themeToggle" title="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="tool-btn infinity-btn" id="infinityBtn" title="Infinity Mode">
+                ∞
+            </button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div id="editor" contenteditable="true" data-placeholder="Begin your masterpiece here..."></div>
+    </div>
+
+    <button class="fab" id="quickToolsBtn">
+        <i class="fas fa-magic"></i>
+    </button>
+
+    <button class="tools-portal-btn" id="toolsPortalBtn">
+        <i class="fas fa-tools"></i> Open Tools Library
+    </button>
+
+    <!-- Emoji Picker (hidden by default) -->
+    <emoji-picker id="emojiPicker" style="display: none; position: absolute; bottom: 80px; right: 20px; z-index: 100;"></emoji-picker>
+
+    <!-- Table Generator Modal (hidden by default) -->
+    <div id="tableModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+        <h3 style="margin-bottom: 1rem;">Create Table</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+            <div>
+                <label for="rows">Rows:</label>
+                <input type="number" id="rows" min="1" max="20" value="3" style="width: 100%; padding: 0.5rem;">
+            </div>
+            <div>
+                <label for="cols">Columns:</label>
+                <input type="number" id="cols" min="1" max="10" value="3" style="width: 100%; padding: 0.5rem;">
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button id="cancelTable" style="padding: 0.5rem 1rem; background: #f1f3f5; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+            <button id="insertTable" style="padding: 0.5rem 1rem; background: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;">Insert</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.14.0/dist/emoji-picker-element.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Initialize the editor
+        const editor = document.getElementById('editor');
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        
+        // Set initial theme
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('themeToggle').innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('darkMode', isDarkMode);
+        });
+        
+        // Formatting buttons
+        document.getElementById('boldBtn').addEventListener('click', () => execCommand('bold'));
+        document.getElementById('italicBtn').addEventListener('click', () => execCommand('italic'));
+        document.getElementById('underlineBtn').addEventListener('click', () => execCommand('underline'));
+        
+        // Heading buttons
+        document.querySelectorAll('[data-format]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                execCommand('formatBlock', false, btn.dataset.format);
+            });
+        });
+        
+        // Font family buttons
+        document.querySelectorAll('[data-font]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                execCommand('fontName', false, btn.dataset.font);
+            });
+        });
+        
+        // Font size buttons
+        document.querySelectorAll('[data-size]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const size = btn.dataset.size;
+                execCommand('fontSize', false, '7'); // Hack for cross-browser compatibility
+                // Modern approach
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const span = document.createElement('span');
+                    span.style.fontSize = size;
+                    range.surroundContents(span);
+                }
+            });
+        });
+        
+        // Text color
+        document.getElementById('textColor').addEventListener('input', (e) => {
+            execCommand('foreColor', false, e.target.value);
+        });
+        
+        // Highlight color
+        document.getElementById('highlightBtn').addEventListener('click', () => {
+            const color = document.getElementById('highlightColor').value;
+            execCommand('hiliteColor', false, color);
+        });
+        
+        // Link insertion
+        document.getElementById('linkBtn').addEventListener('click', () => {
+            const url = prompt('Enter the URL:');
+            if (url) {
+                execCommand('createLink', false, url);
+            }
+        });
+        
+        // Image insertion
+        document.getElementById('imageBtn').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
+        
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100%';
+                    insertAtCursor(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Emoji picker
+        const emojiPicker = document.getElementById('emojiPicker');
+        document.getElementById('emojiBtn').addEventListener('click', () => {
+            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        emojiPicker.addEventListener('emoji-click', (event) => {
+            insertAtCursor(event.detail.unicode);
+            emojiPicker.style.display = 'none';
+        });
+        
+        // Table creation
+        const tableModal = document.getElementById('tableModal');
+        document.getElementById('tableBtn').addEventListener('click', () => {
+            tableModal.style.display = 'block';
+        });
+        
+        document.getElementById('cancelTable').addEventListener('click', () => {
+            tableModal.style.display = 'none';
+        });
+        
+        document.getElementById('insertTable').addEventListener('click', () => {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            insertTable(rows, cols);
+            tableModal.style.display = 'none';
+        });
+        
+        // Word count
+        function updateWordCount() {
+            const text = editor.innerText || '';
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('wordCount').textContent = words;
+        }
+        
+        editor.addEventListener('input', updateWordCount);
+        updateWordCount();
+        
+        // Tools portal
+        document.getElementById('toolsPortalBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            window.location.href = 'tools.html';
+        });
+        
+        // Infinity mode
+        document.getElementById('infinityBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            window.location.href = 'special.html';
+        });
+        
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            window.location.href = 'export.html';
+        });
+        
+        // Save functionality
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            localStorage.setItem('editorContent', editor.innerHTML);
+            showToast('Document saved locally!');
+        });
+        
+        // New document
+        document.getElementById('newDocBtn').addEventListener('click', () => {
+            if (confirm('Start a new document? Your current content will be saved locally.')) {
+                localStorage.setItem('editorContent', editor.innerHTML);
+                editor.innerHTML = '<p><br></p>';
+                showToast('New document created');
+            }
+        });
+        
+        // Quick tools FAB
+        document.getElementById('quickToolsBtn').addEventListener('click', () => {
+            // Open a quick tools menu
+            alert('Quick tools panel will open here with frequently used tools');
+        });
+        
+        // Load saved content
+        if (localStorage.getItem('editorContent')) {
+            editor.innerHTML = localStorage.getItem('editorContent');
+        }
+        
+        // Helper functions
+        function execCommand(command, showUI = false, value = null) {
+            document.execCommand(command, showUI, value);
+            editor.focus();
+        }
+        
+        function insertAtCursor(node) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(typeof node === 'string' ? document.createTextNode(node) : node);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                editor.focus();
+            }
+        }
+        
+        function insertTable(rows, cols) {
+            let tableHtml = '<table style="width:100%; border-collapse: collapse; margin: 1rem 0;">';
+            for (let i = 0; i < rows; i++) {
+                tableHtml += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHtml += `<td style="border: 1px solid #ddd; padding: 8px;">&nbsp;</td>`;
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table>';
+            
+            const div = document.createElement('div');
+            div.innerHTML = tableHtml;
+            insertAtCursor(div.firstChild);
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = 'var(--dark)';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '4px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.zIndex = '1000';
+            toast.style.animation = 'fadeIn 0.3s';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
